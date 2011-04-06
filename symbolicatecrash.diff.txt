@@ -1,0 +1,67 @@
+208a209,212
+>     my $pathToDsym;
+>     my $dsymBaseName;
+>     my $executable;
+>     
+210,213c214,232
+<     $dsymdir =~ /(.*)\/(.*).dSYM/;
+<     my $pathToDsym = $1;
+<     my $dsymBaseName = $2;
+<     my $executable = $dsymBaseName;
+---
+>     if ($dsymdir =~ /(.*)\/(.*).dSYM/) {
+>         $pathToDsym = $1;
+>         $dsymBaseName = $2;
+>         $executable = $dsymBaseName;
+>     } else {
+>     	print STDERR "No match for dsymdir\n\n" if $opt{v};
+>     	my @files = glob("$dsymdir/*/*");
+>     	my $file;
+>         foreach $file (@files) {
+>             print STDERR "$file\n";
+>             if ($file =~ /(.*)\/(.*).dSYM$/) {
+>                 print STDERR "using $file\n";
+>                 $pathToDsym = quotemeta($1);
+>                 $dsymBaseName = $2;
+>                 $executable = $dsymBaseName;
+>                 last;
+>             }
+>         }
+>     }
+220a240,242
+>     print STDERR "pathToDsym: $pathToDsym\n" if $opt{v};
+>     print STDERR "dsymBaseName: $dsymBaseName\n" if $opt{v};
+>     print STDERR "executable: $executable\n" if $opt{v};
+230,232c252,269
+< 		$_ =~ s/\/$//;
+< 		chomp($_);
+< 		$_ = $_."/".$executable;
+---
+>         $_ =~ s/\/$//;
+>         chomp($_);
+> 	    if ($_ =~ /.*.xcarchive/) {
+> 	        my $path = quotemeta("$_");
+> 	        $path = $path."/*/*/*/$executable";
+>             print STDERR "searching $path\n" if $opt{v};        	        
+> 	        my @files = glob("$path");
+> 	        my $file;
+> 	        foreach $file (@files) {
+>             	print STDERR "Found $file\n" if $opt{v};        
+> 	        }
+> 	        if (@files) {
+> 	            $_ = $files[0];
+>             	print STDERR "Found executable in .xcarchive: $_\n" if $opt{v};
+> 	        }
+> 	    } else {
+>             $_ = $_."/".$executable;
+>         }
+246,247c283,284
+< 				print STDERR "Executable name: $exec\n\n" if $opt{v};
+< 				print STDERR "UUID doesn't match dsym for executable $exec\n" if $opt{v};
+---
+> 				print STDERR "Executable name: $exec\n" if $opt{v};
+> 				print STDERR "UUID doesn't match dsym for executable $exec\n\n" if $opt{v};
+267c304
+<         print STDERR "## $path doesn't exist " if $opt{v};
+---
+>         print STDERR "## $path doesn't exist \n" if $opt{v};
