@@ -335,7 +335,7 @@ sub matchesUUID
 			print STDERR "Given UUID $uuid for '$path' is really UUID $test\n" if $opt{v};
 		}
     } else {
-		# die "Can't understand the output from otool ($TEST_uuid -> '$otool -arch $arch -l $path')";
+		print STDERR "Can't understand the output from otool ($TEST_uuid -> '$otool -arch $arch -l $path')";
 	}
 
     return 0;
